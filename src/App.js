@@ -167,7 +167,6 @@ function App() {
                   name="header"
                   value={parameters.header}
                   onChange={handleInputChange}
-                  required
                 />
               </div>
             </div>
