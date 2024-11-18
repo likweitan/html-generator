@@ -11,6 +11,8 @@ function App() {
     header: "",
     writeup: "",
     cta: "",
+    cta_sentence: "", // New field
+    cta_2: "", // New field
   });
   const [templateFile, setTemplateFile] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState("custom");
@@ -25,6 +27,8 @@ function App() {
       header: Cookies.get("header") || "",
       writeup: Cookies.get("writeup") || "",
       cta: Cookies.get("cta") || "",
+      cta_sentence: Cookies.get("cta_sentence") || "", // Load from cookie
+      cta_2: Cookies.get("cta_2") || "", // Load from cookie
     };
     setParameters(loadedParams);
   }, []);
@@ -97,6 +101,8 @@ function App() {
       header: "",
       writeup: "",
       cta: "",
+      cta_sentence: "",
+      cta_2: "",
     });
     setSelectedTemplate("custom");
     setTemplateFile(null);
@@ -108,12 +114,12 @@ function App() {
 
   return (
     <>
-      <header className="bg-primary text-white text-center py-3">
-        <h1>Eqsy</h1>
+      <header className="text-black text-center py-0">
+        <h3>Cian</h3>
         <p>One and only.</p>
       </header>
 
-      <div className="container mt-3">
+      <div className="container mt-0">
         <form onSubmit={handleFormSubmit}>
           <div className="mb-3">
             <label htmlFor="templateSelect" className="form-label">
@@ -197,8 +203,9 @@ function App() {
               </div>
             </div>
           </div>
+
           <div className="row">
-            <div className="col-md-6">
+            <div className="col-md-4">
               <div className="mb-3">
                 <label htmlFor="cta" className="form-label">
                   Call-to-Action (CTA)
@@ -213,6 +220,39 @@ function App() {
                 />
               </div>
             </div>
+            <div className="col-md-4">
+              <div className="mb-3">
+                <label htmlFor="cta_sentence" className="form-label">
+                  CTA Sentence
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="cta_sentence"
+                  name="cta_sentence"
+                  value={parameters.cta_sentence}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <div className="col-md-4">
+              <div className="mb-3">
+                <label htmlFor="cta_2" className="form-label">
+                  CTA 2
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="cta_2"
+                  name="cta_2"
+                  value={parameters.cta_2}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="row">
             <div className="col-md-6">
               <div className="mb-3">
                 <label htmlFor="filename" className="form-label">
