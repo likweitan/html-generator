@@ -92,7 +92,7 @@ function App() {
     reader.readAsText(templateFile);
   };
 
-  const handleClearAll = () => {
+  const handleClearAll = (e) => {
     setParameters({
       subject: "",
       tracking_link: "",
@@ -106,6 +106,9 @@ function App() {
     });
     setSelectedTemplate("custom");
     setTemplateFile(null);
+
+    // Reset the form to clear the file input
+    document.querySelector('form').reset();
 
     Object.keys(parameters).forEach(key => {
       Cookies.remove(key);
