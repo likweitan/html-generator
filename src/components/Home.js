@@ -1,46 +1,42 @@
 import React, { useState, useEffect } from "react";
 import { saveAs } from "file-saver";
 import Cookies from "js-cookie";
+import {
+  defaultParameters,
+  fieldConfigs,
+  getEditableFields,
+  getTemplateDefaults,
+  templates,
+} from "../utils/templateConfig";
 
 function Home() {
-  const [parameters, setParameters] = useState({
-    subject: "",
-    tracking_link: "",
-    unsubscribe_link: "",
-    filename: "",
-    header: "",
-    writeup: "",
-    cta: "",
-    cta_sentence: "",
-    cta_2: "",
-  });
+  const [parameters, setParameters] = useState(defaultParameters);
   const [templateFile, setTemplateFile] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState("custom");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const loadedParams = {
-      subject: Cookies.get("subject") || "",
-      tracking_link: Cookies.get("tracking_link") || "",
-      unsubscribe_link: Cookies.get("unsubscribe_link") || "",
-      filename: Cookies.get("filename") || "",
-      header: Cookies.get("header") || "",
-      writeup: Cookies.get("writeup") || "",
-      cta: Cookies.get("cta") || "",
-      cta_sentence: Cookies.get("cta_sentence") || "",
-      cta_2: Cookies.get("cta_2") || "",
-    };
+    const loadedParams = Object.keys(defaultParameters).reduce((acc, key) => {
+      acc[key] = Cookies.get(key) || defaultParameters[key];
+      return acc;
+    }, {});
     setParameters(loadedParams);
   }, []);
 
   const handleTemplateChange = async (e) => {
     const selected = e.target.value;
     setSelectedTemplate(selected);
+    const templateDefaults = getTemplateDefaults(selected);
+    setParameters(templateDefaults);
+
+    Object.entries(templateDefaults).forEach(([key, value]) => {
+      Cookies.set(key, value, { expires: 7 });
+    });
     
     if (selected !== "custom") {
       setIsLoading(true);
       try {
-        const response = await fetch(`/template/${selected}.html`);
+        const response = await fetch(templates[selected].htmlFile);
         if (!response.ok) throw new Error('Failed to load template');
         const blob = await response.blob();
         setTemplateFile(new File([blob], `${selected}.html`, { type: 'text/html' }));
@@ -93,25 +89,50 @@ function Home() {
   };
 
   const handleClearAll = (e) => {
-    setParameters({
-      subject: "",
-      tracking_link: "",
-      unsubscribe_link: "",
-      filename: "",
-      header: "",
-      writeup: "",
-      cta: "",
-      cta_sentence: "",
-      cta_2: "",
-    });
+    setParameters(defaultParameters);
     setSelectedTemplate("custom");
     setTemplateFile(null);
 
     document.querySelector('form').reset();
 
-    Object.keys(parameters).forEach(key => {
+    Object.keys(defaultParameters).forEach(key => {
       Cookies.remove(key);
     });
+  };
+
+  const editableFields = getEditableFields(selectedTemplate);
+  const visibleFields = fieldConfigs.filter((field) => editableFields.includes(field.name));
+
+  const renderField = (field) => {
+    const commonProps = {
+      className: "form-control",
+      id: field.name,
+      name: field.name,
+      value: parameters[field.name] || "",
+      onChange: handleInputChange,
+      required: field.required,
+    };
+
+    return (
+      <div className="mb-3" key={field.name}>
+        <label htmlFor={field.name} className="form-label">
+          {field.label}
+        </label>
+        {field.type === "textarea" ? (
+          <textarea {...commonProps} rows={field.rows || 4}></textarea>
+        ) : (
+          <input type={field.type} {...commonProps} />
+        )}
+      </div>
+    );
+  };
+
+  const getFieldColumnClass = (fieldName) => {
+    if (fieldName === "writeup") {
+      return "col-md-12";
+    }
+
+    return "col-md-6";
   };
 
   return (
@@ -128,9 +149,11 @@ function Home() {
             onChange={handleTemplateChange}
             disabled={isLoading}
           >
-            <option value="custom">Custom Template</option>
-            <option value="1">Template 1</option>
-            <option value="2">Template 2</option>
+            {Object.entries(templates).map(([templateId, template]) => (
+              <option key={templateId} value={templateId}>
+                {template.label}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -151,154 +174,11 @@ function Home() {
         )}
 
         <div className="row">
-          <div className="col-md-6">
-            <div className="mb-3">
-              <label htmlFor="header" className="form-label">
-                Header
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="header"
-                name="header"
-                value={parameters.header}
-                onChange={handleInputChange}
-              />
+          {visibleFields.map((field) => (
+            <div className={getFieldColumnClass(field.name)} key={field.name}>
+              {renderField(field)}
             </div>
-          </div>
-          <div className="col-md-6">
-            <div className="mb-3">
-              <label htmlFor="subject" className="form-label">
-                Subject
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="subject"
-                name="subject"
-                value={parameters.subject}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
-          <div className="col-md-12">
-            <div className="mb-3">
-              <label htmlFor="writeup" className="form-label">
-                Writeup
-              </label>
-              <textarea
-                className="form-control"
-                id="writeup"
-                name="writeup"
-                value={parameters.writeup}
-                onChange={handleInputChange}
-                rows="4"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-md-4">
-            <div className="mb-3">
-              <label htmlFor="cta" className="form-label">
-                Call-to-Action (CTA)
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="cta"
-                name="cta"
-                value={parameters.cta}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="mb-3">
-              <label htmlFor="cta_sentence" className="form-label">
-                CTA Sentence
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="cta_sentence"
-                name="cta_sentence"
-                value={parameters.cta_sentence}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="mb-3">
-              <label htmlFor="cta_2" className="form-label">
-                CTA 2
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="cta_2"
-                name="cta_2"
-                value={parameters.cta_2}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-md-6">
-            <div className="mb-3">
-              <label htmlFor="filename" className="form-label">
-                Filename
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="filename"
-                name="filename"
-                value={parameters.filename}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-md-6">
-            <div className="mb-3">
-              <label htmlFor="trackingLink" className="form-label">
-                Tracking Link
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="trackingLink"
-                name="tracking_link"
-                value={parameters.tracking_link}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="mb-3">
-              <label htmlFor="unsubscribeLink" className="form-label">
-                Unsubscribe Link
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="unsubscribeLink"
-                name="unsubscribe_link"
-                value={parameters.unsubscribe_link}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          </div>
+          ))}
         </div>
 
         <div className="d-flex justify-content-end">

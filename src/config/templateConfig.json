@@ -1,0 +1,129 @@
+{
+  "defaultParameters": {
+    "header": "",
+    "subject": "",
+    "writeup": "",
+    "cta": "",
+    "filename": "",
+    "tracking_link": "",
+    "unsubscribe_link": "",
+    "cta_sentence": "",
+    "cta_2": ""
+  },
+  "fields": [
+    {
+      "name": "header",
+      "label": "Header",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "subject",
+      "label": "Subject",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "writeup",
+      "label": "Writeup",
+      "type": "textarea",
+      "required": false,
+      "rows": 4
+    },
+    {
+      "name": "cta",
+      "label": "Call-to-Action (CTA)",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "filename",
+      "label": "Filename",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "tracking_link",
+      "label": "Tracking Link",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "unsubscribe_link",
+      "label": "Unsubscribe Link",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "cta_sentence",
+      "label": "CTA Sentence",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "cta_2",
+      "label": "CTA 2",
+      "type": "text",
+      "required": false
+    }
+  ],
+  "templates": {
+    "custom": {
+      "label": "Custom Template",
+      "htmlFile": null,
+      "editableFields": [
+        "header",
+        "subject",
+        "writeup",
+        "cta",
+        "filename",
+        "tracking_link",
+        "unsubscribe_link",
+        "cta_sentence",
+        "cta_2"
+      ],
+      "defaults": {}
+    },
+    "1": {
+      "label": "Template 1",
+      "htmlFile": "/template/1.html",
+      "editableFields": [
+        "subject",
+        "filename",
+        "tracking_link",
+        "unsubscribe_link"
+      ],
+      "defaults": {
+        "header": "",
+        "writeup": "",
+        "cta": "",
+        "cta_sentence": "",
+        "cta_2": ""
+      }
+    },
+    "2": {
+      "label": "Template 2",
+      "htmlFile": "/template/2.html",
+      "editableFields": [
+        "header",
+        "subject",
+        "writeup",
+        "cta",
+        "filename",
+        "tracking_link",
+        "unsubscribe_link"
+      ],
+      "defaults": {
+        "header": "Unlock 25% Savings with AARP Membership",
+        "subject": "Start Your AARP Membership Today and Save 25% on the First Year",
+        "writeup": "This November, enjoy 25% savings when you join AARP. Access member-only resources, tools and exclusive savings. Start building a future filled with benefits designed to make life easier, healthier and more enjoyable.",
+        "cta": "JOIN NOW",
+        "filename": "aarp707cys",
+        "tracking_link": "",
+        "unsubscribe_link": "",
+        "cta_sentence": "",
+        "cta_2": ""
+      }
+    }
+  }
+}
