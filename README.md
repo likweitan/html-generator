@@ -1,51 +1,78 @@
 # Scaffl
 
-Scaffl is a modern, responsive web application for dynamic HTML template generation and visual preview. It provides a clean, dark-mode split-screen interface inspired by the OpenAI Playground that lets users build, populate, and preview dynamic HTML templates effortlessly.
+Scaffl is a React + Vite app for generating HTML from parameterized templates. It opens with a default template loaded, lets you edit supported fields, preview the result live, inspect the generated markup, upload custom HTML templates, and export the final output as an `.html` file.
 
 ## Features
 
-- **Dynamic Field Extraction**: Upload and parse HTML templates automatically identifying dynamic fields enclosed in double curly braces (e.g., `{{ subject }}`).
-- **Live Preview Canvas**: Real-time rendering of your populated templates in an embedded frame.
-- **Modern Split-Screen Interface**: Contextual split-layout placing input controls on one side and a responsive HTML preview on the other. 
-- **Code Export**: Easily copy or export your generated markup to seamlessly integrate it elsewhere.
+- Live HTML preview in an embedded iframe
+- Default preset loaded on initial app startup
+- Custom template upload with automatic `{{ placeholder }}` field detection
+- Generated code dialog with copy support
+- Save/export to a local `.html` file
+- Light, dark, and system theme toggle
+- Toast feedback for upload, save, clear, and validation states
 
-## Technologies
+## Stack
 
-This project has been modernized and migrated away from Create React App, taking advantage of next-generation build tools and functional styles:
-
-- **Framework**: React 18
-- **Build Tool**: Vite for instant server start and lightning-fast HMR
-- **Styling**: Tailwind CSS v4 for utility-first styling and dynamic layouts
-- **Components**: shadcn/ui and Radix Primitives for accessible, robust GUI elements
-- **Fonts**: Geist Mono / Geist Sans (via `@fontsource-variable/geist`)
+- React 18
+- Vite 8
+- Tailwind CSS 4
+- shadcn/ui + Radix primitives
+- Sonner for toast notifications
+- Simple Icons for brand icons
+- `file-saver` for exports
+- `js-cookie` for persisted field values
 
 ## Getting Started
 
 ### Prerequisites
 
-Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
+- Node.js 18+ recommended
+- npm
 
-### Installation
-
-Clone the repository and install its dependencies:
+### Install
 
 ```bash
 npm install
 ```
 
-### Available Scripts
+### Run Locally
 
-In the project directory, you can run:
+```bash
+npm run dev
+```
 
-#### `npm run dev` (or `npm start`)
-Runs the app in development mode using Vite. Open [http://localhost:5173](http://localhost:5173) (or the port Vite provides) to view it in the browser. The page will instantly hot-reload when making code changes.
+Open the local Vite URL shown in the terminal, typically `http://localhost:5173`.
 
-#### `npm run build`
-Builds the app for production to the `dist` folder. It correctly bundles React in production mode and optimizes the build for the best performance.
+## Scripts
 
-#### `npm run preview`
-Boots up a local static web server that serves the files from `dist` to preview the production build locally.
+### `npm run dev`
 
-## License
+Starts the Vite development server with hot reload.
 
-MIT License
+### `npm start`
+
+Alias for `npm run dev`.
+
+### `npm run build`
+
+Builds the production bundle into `dist/`.
+
+### `npm run preview`
+
+Serves the production build locally from `dist/`.
+
+## Template Behavior
+
+- Built-in templates are defined in [src/config/templateConfig.json](/Users/admin/Projects/html-generator/src/config/templateConfig.json).
+- The app loads the first non-custom template by default on startup.
+- Uploaded custom templates are scanned for placeholders like `{{ subject }}`.
+- Detected placeholders become editable fields in the sidebar.
+
+## Project Structure
+
+- [src/components/Home.jsx](/Users/admin/Projects/html-generator/src/components/Home.jsx): main generator UI
+- [src/components/theme-provider.jsx](/Users/admin/Projects/html-generator/src/components/theme-provider.jsx): app theme state
+- [src/components/ui](/Users/admin/Projects/html-generator/src/components/ui): shared UI primitives
+- [src/utils/templateConfig.jsx](/Users/admin/Projects/html-generator/src/utils/templateConfig.jsx): template config helpers
+- [src/config/templateConfig.json](/Users/admin/Projects/html-generator/src/config/templateConfig.json): template metadata and default fields
