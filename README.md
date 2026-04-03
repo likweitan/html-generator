@@ -1,71 +1,51 @@
-# Getting Started with Create React App
+# Scaffl
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Scaffl is a modern, responsive web application for dynamic HTML template generation and visual preview. It provides a clean, dark-mode split-screen interface inspired by the OpenAI Playground that lets users build, populate, and preview dynamic HTML templates effortlessly.
 
-## Available Scripts
+## Features
+
+- **Dynamic Field Extraction**: Upload and parse HTML templates automatically identifying dynamic fields enclosed in double curly braces (e.g., `{{ subject }}`).
+- **Live Preview Canvas**: Real-time rendering of your populated templates in an embedded frame.
+- **Modern Split-Screen Interface**: Contextual split-layout placing input controls on one side and a responsive HTML preview on the other. 
+- **Code Export**: Easily copy or export your generated markup to seamlessly integrate it elsewhere.
+
+## Technologies
+
+This project has been modernized and migrated away from Create React App, taking advantage of next-generation build tools and functional styles:
+
+- **Framework**: React 18
+- **Build Tool**: Vite for instant server start and lightning-fast HMR
+- **Styling**: Tailwind CSS v4 for utility-first styling and dynamic layouts
+- **Components**: shadcn/ui and Radix Primitives for accessible, robust GUI elements
+- **Fonts**: Geist Mono / Geist Sans (via `@fontsource-variable/geist`)
+
+## Getting Started
+
+### Prerequisites
+
+Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
+
+### Installation
+
+Clone the repository and install its dependencies:
+
+```bash
+npm install
+```
+
+### Available Scripts
 
 In the project directory, you can run:
 
-### `npm start`
+#### `npm run dev` (or `npm start`)
+Runs the app in development mode using Vite. Open [http://localhost:5173](http://localhost:5173) (or the port Vite provides) to view it in the browser. The page will instantly hot-reload when making code changes.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+#### `npm run build`
+Builds the app for production to the `dist` folder. It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+#### `npm run preview`
+Boots up a local static web server that serves the files from `dist` to preview the production build locally.
 
-### `npm test`
+## License
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-"# html-generator" 
+MIT License

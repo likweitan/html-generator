@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { saveAs } from "file-saver";
 import Cookies from "js-cookie";
-import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, X, Upload } from "lucide-react";
+import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, X, Upload, Github } from "lucide-react";
 import {
   defaultParameters,
   fieldConfigs,
@@ -257,7 +257,10 @@ function Home() {
           <button onClick={handleFormSubmit} disabled={isLoading || !hasPreview} className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white disabled:opacity-50">Save</button>
           <button onClick={() => setShowCodeModal(true)} disabled={!hasPreview} className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white disabled:opacity-50">View code</button>
           <button className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white">Share</button>
-          <button className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white">...</button>
+          <a href="https://github.com/likweitan/scaffl" target="_blank" rel="noopener noreferrer" className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white flex items-center gap-1.5">
+            <Github className="w-3.5 h-3.5" />
+            GitHub
+          </a>
         </div>
       </header>
 
