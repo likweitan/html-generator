@@ -7,6 +7,17 @@ import { toast } from "sonner";
 import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
 import {
+  Field,
+  FieldDescription,
+  FieldLabel,
+} from "./ui/field";
+import { Input } from "./ui/input";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "./ui/resizable";
+import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -178,7 +189,6 @@ function Home() {
       });
 
       toast.success(`Uploaded ${file.name} successfully.`);
-      toast.info(`Detected ${detectedFields.length} dynamic field(s).`);
     };
     reader.onerror = () => {
       toast.error(`Failed to read ${file.name}.`);
@@ -340,88 +350,96 @@ function Home() {
             </div>
           </div>
         ) : (
-          <>
-            {/* LEFT SIDE — Main Canvas */}
-            <div className="w-1/2 flex flex-col relative px-4 py-4 border-r border-border bg-background">
-              <div className="w-full max-w-4xl mx-auto flex-1 rounded-md border border-border overflow-hidden relative bg-transparent flex flex-col shadow-lg">
-                <div className="w-full h-full bg-white relative">
-                   <iframe
-                    ref={iframeRef}
-                    title="HTML Preview"
-                    className="w-full h-full border-0 absolute inset-0 block bg-white text-black"
-                    sandbox="allow-same-origin"
-                  />
+          <ResizablePanelGroup orientation="horizontal" className="h-full w-full">
+            <ResizablePanel defaultSize={50} className="min-w-0">
+              {/* LEFT SIDE — Main Canvas */}
+              <div className="flex h-full flex-col relative px-4 py-4 bg-background">
+                <div className="w-full flex-1 rounded-md border border-border overflow-hidden relative bg-transparent flex flex-col shadow-lg">
+                  <div className="w-full h-full bg-white relative">
+                    <iframe
+                      ref={iframeRef}
+                      title="HTML Preview"
+                      className="w-full h-full border-0 absolute inset-0 block bg-white text-black"
+                      sandbox="allow-same-origin"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel defaultSize={50} className="min-w-0">
+              {/* RIGHT SIDE — Sidebar Settings */}
+              <div className="h-full min-w-0 bg-background flex flex-col overflow-x-hidden overflow-y-auto p-6 custom-scrollbar">
+                <Field className="mb-6 gap-1.5">
+                  <FieldLabel htmlFor="template-file">Template</FieldLabel>
+                  <Input
+                    id="template-file"
+                    type="file"
+                    accept=".html"
+                    onChange={handleFileChange}
+                    className="bg-card text-[13px]"
+                  />
+                  <FieldDescription className="text-[11px]">
+                    Select a template to upload.
+                  </FieldDescription>
+                </Field>
 
-            {/* RIGHT SIDE — Sidebar Settings */}
-            <div className="w-1/2 bg-background flex flex-col overflow-y-auto p-6 custom-scrollbar">
-              <div className="mb-6 space-y-1.5 group relative">
-                <div className="text-[13px] text-foreground">Template</div>
-                <button className="w-full bg-card border border-border rounded px-3 py-1.5 text-[13px] text-left text-foreground flex justify-between items-center hover:bg-muted transition-colors relative">
-                   <span className="truncate pr-4">{templateDisplayName}</span>
-                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                   <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept=".html" onChange={handleFileChange} />
-                </button>
-                {isLoading && <div className="text-[11px] text-muted-foreground mt-1">Loading...</div>}
-              </div>
-
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">Fields</span>
-                <button
-                  type="button"
-                  onClick={handleClearAll}
-                  title="Clear all field values"
-                  className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-red-500 transition-colors px-2 py-1 rounded hover:bg-red-500/10"
-                >
-                  <Eraser className="w-3.5 h-3.5" />
-                  Clear
-                </button>
-              </div>
-              <div className="space-y-6">
-                {visibleFields.map((field) => (
-                  <div key={field.name} className="flex flex-col gap-1.5">
-                    <label className="text-[13px] text-foreground flex justify-between">
-                      {field.label}
-                      {field.type === 'number' && <span className="text-muted-foreground">{parameters[field.name] || 0}</span>}
-                    </label>
-                    {field.type === "textarea" ? (
-                      <textarea
-                        id={field.name}
-                        name={field.name}
-                        value={parameters[field.name] || ""}
-                        onChange={handleInputChange}
-                        className="w-full bg-card border border-border rounded px-2 py-1.5 text-[13px] focus:outline-none focus:ring-1 focus:ring-ring text-foreground resize-y"
-                        rows={field.rows || 3}
-                      />
-                    ) : field.type === "number" || field.type === "range" ? (
-                      <div className="relative pt-1">
-                        <input 
-                          type="range"
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">Fields</span>
+                  <button
+                    type="button"
+                    onClick={handleClearAll}
+                    title="Clear all field values"
+                    className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-red-500 transition-colors px-2 py-1 rounded hover:bg-red-500/10"
+                  >
+                    <Eraser className="w-3.5 h-3.5" />
+                    Clear
+                  </button>
+                </div>
+                <div className="space-y-6">
+                  {visibleFields.map((field) => (
+                    <div key={field.name} className="flex flex-col gap-1.5">
+                      <label className="text-[13px] text-foreground flex justify-between">
+                        {field.label}
+                        {field.type === 'number' && <span className="text-muted-foreground">{parameters[field.name] || 0}</span>}
+                      </label>
+                      {field.type === "textarea" ? (
+                        <textarea
                           id={field.name}
                           name={field.name}
-                          min="0"
-                          max="100"
-                          value={parameters[field.name] || 0}
+                          value={parameters[field.name] || ""}
                           onChange={handleInputChange}
-                          className="w-full h-1 bg-muted rounded-lg appearance-none cursor-pointer" 
+                          className="w-full bg-card border border-border rounded px-2 py-1.5 text-[13px] focus:outline-none focus:ring-1 focus:ring-ring text-foreground resize-y"
+                          rows={field.rows || 3}
                         />
-                      </div>
-                    ) : (
-                      <input
-                        id={field.name}
-                        name={field.name}
-                        value={parameters[field.name] || ""}
-                        onChange={handleInputChange}
-                        className="w-full bg-card border border-border rounded px-2 py-1.5 text-[13px] focus:outline-none focus:ring-1 focus:ring-ring text-foreground"
-                      />
-                    )}
-                  </div>
-                ))}
+                      ) : field.type === "number" || field.type === "range" ? (
+                        <div className="relative pt-1">
+                          <input
+                            type="range"
+                            id={field.name}
+                            name={field.name}
+                            min="0"
+                            max="100"
+                            value={parameters[field.name] || 0}
+                            onChange={handleInputChange}
+                            className="w-full h-1 bg-muted rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+                      ) : (
+                        <input
+                          id={field.name}
+                          name={field.name}
+                          value={parameters[field.name] || ""}
+                          onChange={handleInputChange}
+                          className="w-full bg-card border border-border rounded px-2 py-1.5 text-[13px] focus:outline-none focus:ring-1 focus:ring-ring text-foreground"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         )}
       </main>
 
