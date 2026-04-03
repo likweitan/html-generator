@@ -1,8 +1,24 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { saveAs } from "file-saver";
 import Cookies from "js-cookie";
-import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, X, Upload, GitBranch, Eraser } from "lucide-react";
+import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, Upload, GitBranch, Eraser } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
+import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import {
   defaultParameters,
   fieldConfigs,
@@ -77,8 +93,7 @@ function Home() {
     }
   }, [generatePreviewHtml]);
 
-  const handleTemplateChange = async (e) => {
-    const selected = e.target.value;
+  const handleTemplateChange = async (selected) => {
     setSelectedTemplate(selected);
     const templateDefaults = getTemplateDefaults(selected);
     setParameters(templateDefaults);
@@ -240,19 +255,21 @@ function Home() {
       <header className="flex h-14 items-center justify-between px-4 border-b border-border bg-background">
         <div className="font-semibold text-[15px] text-foreground">Scaffl</div>
         <div className="flex items-center gap-2">
-          <select
-            className="bg-muted text-foreground text-[13px] rounded px-3 py-1.5 border border-border outline-none hover:bg-accent transition-colors min-w-[150px]"
-            value={selectedTemplate}
-            onChange={handleTemplateChange}
-            disabled={isLoading}
-          >
-            <option value="custom" disabled hidden>Load a preset...</option>
-            {Object.entries(templates).map(([templateId, template]) => (
-              <option key={templateId} value={templateId}>
-                {template.label}
-              </option>
-            ))}
-          </select>
+          <Select
+            value={selectedTemplate === "custom" ? undefined : selectedTemplate}
+            onValueChange={handleTemplateChange}
+            disabled={isLoading}>
+            <SelectTrigger className="min-w-[150px] bg-muted text-[13px] hover:bg-accent">
+              <SelectValue placeholder="Load a preset..." />
+            </SelectTrigger>
+            <SelectContent align="start">
+              {Object.entries(templates).map(([templateId, template]) => (
+                <SelectItem key={templateId} value={templateId}>
+                  {template.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <div className="h-4 w-px bg-border mx-1"></div>
           <button onClick={handleFormSubmit} disabled={isLoading || !hasPreview} className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground disabled:opacity-50">Save</button>
           <button onClick={() => setShowCodeModal(true)} disabled={!hasPreview} className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground disabled:opacity-50">View code</button>
@@ -369,39 +386,32 @@ function Home() {
         )}
       </main>
 
-      {showCodeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-card border border-border rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
-            <div className="flex justify-between items-center p-4 border-b border-border bg-muted rounded-t-lg">
-              <h2 className="text-foreground font-medium text-[14px]">Generated Code</h2>
-              <button onClick={() => setShowCodeModal(false)} className="text-muted-foreground hover:text-foreground transition-colors">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-4 flex-1 overflow-y-auto custom-scrollbar bg-background">
-              <pre className="text-[13px] text-foreground font-mono whitespace-pre-wrap break-all">
-                {generatePreviewHtml()}
-              </pre>
-            </div>
-            <div className="p-3 border-t border-border flex justify-end gap-2 bg-muted rounded-b-lg">
-              <button 
-                onClick={() => {
-                  navigator.clipboard.writeText(generatePreviewHtml());
-                }} 
-                className="bg-background hover:bg-accent text-foreground px-4 py-1.5 rounded text-[13px] border border-border transition-colors"
-              >
-                Copy
-              </button>
-              <button 
-                onClick={() => setShowCodeModal(false)}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded text-[13px] transition-colors font-medium border border-green-500"
-              >
-                Done
-              </button>
-            </div>
+      <Dialog open={showCodeModal} onOpenChange={setShowCodeModal}>
+        <DialogContent className="w-[calc(100%-2rem)] max-w-4xl gap-0 overflow-hidden p-0">
+          <DialogHeader className="border-b border-border bg-muted px-4 py-4">
+            <DialogTitle>Generated Code</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[70vh] overflow-y-auto bg-background p-4 custom-scrollbar">
+            <pre className="text-[13px] text-foreground font-mono whitespace-pre-wrap break-all">
+              {generatePreviewHtml()}
+            </pre>
           </div>
-        </div>
-      )}
+          <DialogFooter className="border-t border-border bg-muted px-3 py-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                navigator.clipboard.writeText(generatePreviewHtml());
+              }}
+            >
+              Copy
+            </Button>
+            <DialogClose asChild>
+              <Button type="button">Done</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
