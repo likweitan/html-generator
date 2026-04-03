@@ -296,10 +296,29 @@ function Home() {
             </SelectContent>
           </Select>
           <div className="h-4 w-px bg-border mx-1"></div>
-          <button onClick={handleFormSubmit} disabled={isLoading || !hasPreview} className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground disabled:opacity-50">Save</button>
-          <button onClick={() => setShowCodeModal(true)} disabled={!hasPreview} className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground disabled:opacity-50">View code</button>
-          <button className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground">Share</button>
-          <Button variant="ghost" size="icon" asChild>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleFormSubmit}
+            disabled={isLoading || !hasPreview}
+            className="text-[13px]">
+            Save
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowCodeModal(true)}
+            disabled={!hasPreview}
+            className="text-[13px]">
+            View code
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="text-[13px]">
+            Share
+          </Button>
+          <div className="h-4 w-px bg-border mx-1"></div><Button variant="ghost" size="icon" asChild>
             <a
               href="https://github.com/likweitan/scaffl"
               target="_blank"
@@ -313,6 +332,7 @@ function Home() {
               </svg>
             </a>
           </Button>
+          <div className="h-4 w-px bg-border mx-1"></div>
           <ModeToggle />
         </div>
       </header>
