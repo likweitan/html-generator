@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { saveAs } from "file-saver";
 import Cookies from "js-cookie";
-import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, X, Upload, Github } from "lucide-react";
+import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, X, Upload, GitBranch, Eraser } from "lucide-react";
 import {
   defaultParameters,
   fieldConfigs,
@@ -165,15 +165,14 @@ function Home() {
   };
 
   const handleClearAll = () => {
-    setParameters(defaultParameters);
-    setSelectedTemplate("custom");
-    setTemplateFile(null);
-    setTemplateContent("");
-    setCustomFields([]);
+    // Reset field values to defaults but keep the active template intact
+    const clearedParams = Object.keys(parameters).reduce((acc, key) => {
+      acc[key] = defaultParameters[key] ?? "";
+      return acc;
+    }, {});
+    setParameters(clearedParams);
 
-    document.querySelector("form").reset();
-
-    Object.keys(defaultParameters).forEach((key) => {
+    Object.keys(clearedParams).forEach((key) => {
       Cookies.remove(key);
     });
   };
@@ -258,7 +257,7 @@ function Home() {
           <button onClick={() => setShowCodeModal(true)} disabled={!hasPreview} className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white disabled:opacity-50">View code</button>
           <button className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white">Share</button>
           <a href="https://github.com/likweitan/scaffl" target="_blank" rel="noopener noreferrer" className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white flex items-center gap-1.5">
-            <Github className="w-3.5 h-3.5" />
+            <GitBranch className="w-3.5 h-3.5" />
             GitHub
           </a>
         </div>
@@ -310,6 +309,18 @@ function Home() {
                 {isLoading && <div className="text-[11px] text-gray-400 mt-1">Loading...</div>}
               </div>
 
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] uppercase tracking-widest text-gray-500 font-semibold">Fields</span>
+                <button
+                  type="button"
+                  onClick={handleClearAll}
+                  title="Clear all field values"
+                  className="flex items-center gap-1.5 text-[12px] text-gray-400 hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-red-400/10"
+                >
+                  <Eraser className="w-3.5 h-3.5" />
+                  Clear
+                </button>
+              </div>
               <div className="space-y-6">
                 {visibleFields.map((field) => (
                   <div key={field.name} className="flex flex-col gap-1.5">
