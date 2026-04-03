@@ -19,6 +19,15 @@ export function ThemeProvider({
 
   useEffect(() => {
     const root = window.document.documentElement;
+    const disableTransitions = document.createElement("style");
+
+    disableTransitions.appendChild(
+      document.createTextNode(
+        `*,*::before,*::after{transition:none!important;animation:none!important;}`
+      )
+    );
+
+    document.head.appendChild(disableTransitions);
 
     root.classList.remove("light", "dark");
 
@@ -29,10 +38,15 @@ export function ThemeProvider({
         : "light";
 
       root.classList.add(systemTheme);
-      return;
+    } else {
+      root.classList.add(theme);
     }
 
-    root.classList.add(theme);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        disableTransitions.remove();
+      });
+    });
   }, [theme]);
 
   const value = {

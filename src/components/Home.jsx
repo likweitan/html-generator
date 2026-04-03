@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { saveAs } from "file-saver";
 import Cookies from "js-cookie";
-import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, Upload, GitBranch, Eraser } from "lucide-react";
+import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, Upload, Eraser } from "lucide-react";
+import { siGithub } from "simple-icons";
 import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
 import {
@@ -41,6 +42,10 @@ function extractTemplatePlaceholders(htmlContent) {
   return Array.from(fields);
 }
 
+const initialTemplateId = Object.keys(templates).find(
+  (templateId) => templateId !== "custom"
+) || "custom";
+
 /**
  * Convert a snake_case or camelCase field name into a human-readable label.
  * e.g. "tracking_link" -> "Tracking Link", "firstName" -> "First Name"
@@ -56,8 +61,11 @@ function Home() {
   const [parameters, setParameters] = useState(defaultParameters);
   const [templateFile, setTemplateFile] = useState(null);
   const [templateContent, setTemplateContent] = useState("");
-  const [selectedTemplate, setSelectedTemplate] = useState("custom");
+  const [selectedTemplate, setSelectedTemplate] = useState(initialTemplateId);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialTemplateLoading, setIsInitialTemplateLoading] = useState(
+    initialTemplateId !== "custom"
+  );
   const [customFields, setCustomFields] = useState([]);
   const [showCodeModal, setShowCodeModal] = useState(false);
   const iframeRef = useRef(null);
@@ -69,6 +77,44 @@ function Home() {
     }, {});
     setParameters(loadedParams);
   }, []);
+
+  const loadTemplate = useCallback(async (selected) => {
+    if (selected === "custom") {
+      setTemplateFile(null);
+      setTemplateContent("");
+      return;
+    }
+
+    setCustomFields([]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(templates[selected].htmlFile);
+      if (!response.ok) throw new Error("Failed to load template");
+      const text = await response.text();
+      setTemplateContent(text);
+      const blob = new Blob([text], { type: "text/html" });
+      setTemplateFile(
+        new File([blob], `${selected}.html`, { type: "text/html" })
+      );
+    } catch (error) {
+      console.error("Error loading template:", error);
+      alert("Failed to load template. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (initialTemplateId !== "custom") {
+      loadTemplate(initialTemplateId).finally(() => {
+        setIsInitialTemplateLoading(false);
+      });
+      return;
+    }
+
+    setIsInitialTemplateLoading(false);
+  }, [loadTemplate]);
 
   // Generate the preview HTML by replacing placeholders with current parameter values
   const generatePreviewHtml = useCallback(() => {
@@ -102,28 +148,7 @@ function Home() {
       Cookies.set(key, value, { expires: 7 });
     });
 
-    if (selected !== "custom") {
-      setCustomFields([]);
-      setIsLoading(true);
-      try {
-        const response = await fetch(templates[selected].htmlFile);
-        if (!response.ok) throw new Error("Failed to load template");
-        const text = await response.text();
-        setTemplateContent(text);
-        const blob = new Blob([text], { type: "text/html" });
-        setTemplateFile(
-          new File([blob], `${selected}.html`, { type: "text/html" })
-        );
-      } catch (error) {
-        console.error("Error loading template:", error);
-        alert("Failed to load template. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      setTemplateFile(null);
-      setTemplateContent("");
-    }
+    await loadTemplate(selected);
   };
 
   const handleInputChange = (e) => {
@@ -274,16 +299,26 @@ function Home() {
           <button onClick={handleFormSubmit} disabled={isLoading || !hasPreview} className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground disabled:opacity-50">Save</button>
           <button onClick={() => setShowCodeModal(true)} disabled={!hasPreview} className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground disabled:opacity-50">View code</button>
           <button className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground">Share</button>
-          <a href="https://github.com/likweitan/scaffl" target="_blank" rel="noopener noreferrer" className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground flex items-center gap-1.5">
-            <GitBranch className="w-3.5 h-3.5" />
-            GitHub
-          </a>
+          <Button variant="ghost" size="icon" asChild>
+            <a
+              href="https://github.com/likweitan/scaffl"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub repository">
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="h-4 w-4 fill-current">
+                <path d={siGithub.path} />
+              </svg>
+            </a>
+          </Button>
           <ModeToggle />
         </div>
       </header>
 
       <main className="flex flex-1 overflow-hidden bg-background">
-        {!hasPreview ? (
+        {!hasPreview && !isInitialTemplateLoading ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             <div className="relative group cursor-pointer flex flex-col items-center justify-center py-20 px-4 w-full max-w-lg">
               <input type="file" className="absolute inset-0 z-30 opacity-0 cursor-pointer" accept=".html" onChange={handleFileChange} />
