@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { saveAs } from "file-saver";
 import Cookies from "js-cookie";
 import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, Upload, Eraser } from "lucide-react";
-import { siGithub } from "simple-icons";
 import { toast } from "sonner";
 import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
@@ -25,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import { GithubIcon } from "./ui/github";
 import {
   defaultParameters,
   fieldConfigs,
@@ -323,12 +323,7 @@ function Home() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub repository">
-              <svg
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                className="h-4 w-4 fill-current">
-                <path d={siGithub.path} />
-              </svg>
+              <GithubIcon size={18} className="text-current" />
             </a>
           </Button>
           <div className="h-4 w-px bg-border mx-1"></div>
