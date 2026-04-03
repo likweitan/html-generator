@@ -9,11 +9,37 @@ import {
   templates,
 } from "../utils/templateConfig";
 
+/**
+ * Parse an HTML template string and extract all {{ field_name }} placeholders.
+ * Returns an array of unique field names found in the template.
+ */
+function extractTemplatePlaceholders(htmlContent) {
+  const regex = /\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/g;
+  const fields = new Set();
+  let match;
+  while ((match = regex.exec(htmlContent)) !== null) {
+    fields.add(match[1]);
+  }
+  return Array.from(fields);
+}
+
+/**
+ * Convert a snake_case or camelCase field name into a human-readable label.
+ * e.g. "tracking_link" -> "Tracking Link", "firstName" -> "First Name"
+ */
+function fieldNameToLabel(name) {
+  return name
+    .replace(/_/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function Home() {
   const [parameters, setParameters] = useState(defaultParameters);
   const [templateFile, setTemplateFile] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState("custom");
   const [isLoading, setIsLoading] = useState(false);
+  const [customFields, setCustomFields] = useState([]);
 
   useEffect(() => {
     const loadedParams = Object.keys(defaultParameters).reduce((acc, key) => {
@@ -34,6 +60,7 @@ function Home() {
     });
     
     if (selected !== "custom") {
+      setCustomFields([]);
       setIsLoading(true);
       try {
         const response = await fetch(templates[selected].htmlFile);
@@ -61,8 +88,31 @@ function Home() {
   };
 
   const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
     setSelectedTemplate("custom");
-    setTemplateFile(e.target.files[0]);
+    setTemplateFile(file);
+
+    // Read the uploaded file and extract {{ placeholder }} fields
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target.result;
+      const detectedFields = extractTemplatePlaceholders(content);
+      setCustomFields(detectedFields);
+
+      // Initialize parameters for any newly detected fields
+      setParameters((prev) => {
+        const updated = { ...prev };
+        detectedFields.forEach((fieldName) => {
+          if (!(fieldName in updated)) {
+            updated[fieldName] = "";
+          }
+        });
+        return updated;
+      });
+    };
+    reader.readAsText(file);
   };
 
   const handleFormSubmit = async (e) => {
@@ -92,6 +142,7 @@ function Home() {
     setParameters(defaultParameters);
     setSelectedTemplate("custom");
     setTemplateFile(null);
+    setCustomFields([]);
 
     document.querySelector('form').reset();
 
@@ -101,7 +152,25 @@ function Home() {
   };
 
   const editableFields = getEditableFields(selectedTemplate);
-  const visibleFields = fieldConfigs.filter((field) => editableFields.includes(field.name));
+
+  // For custom templates with an uploaded file, use the detected fields
+  let visibleFields;
+  if (selectedTemplate === "custom" && customFields.length > 0) {
+    // Build field configs dynamically from detected placeholders
+    visibleFields = customFields.map((fieldName) => {
+      // Use existing field config if available, otherwise create one dynamically
+      const existingConfig = fieldConfigs.find((f) => f.name === fieldName);
+      if (existingConfig) return existingConfig;
+      return {
+        name: fieldName,
+        label: fieldNameToLabel(fieldName),
+        type: "text",
+        required: false,
+      };
+    });
+  } else {
+    visibleFields = fieldConfigs.filter((field) => editableFields.includes(field.name));
+  }
 
   const renderField = (field) => {
     const commonProps = {
@@ -170,6 +239,16 @@ function Home() {
               onChange={handleFileChange}
               required={selectedTemplate === "custom"}
             />
+            {customFields.length > 0 && (
+              <div className="mt-2">
+                <span className="badge bg-info text-dark">
+                  {customFields.length} dynamic field{customFields.length !== 1 ? "s" : ""} detected
+                </span>
+                <small className="text-muted ms-2">
+                  {customFields.join(", ")}
+                </small>
+              </div>
+            )}
           </div>
         )}
 
