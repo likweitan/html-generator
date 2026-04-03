@@ -85,7 +85,7 @@
       "defaults": {}
     },
     "1": {
-      "label": "Template 1",
+      "label": "Default Template",
       "htmlFile": "/template/1.html",
       "editableFields": [
         "subject",
@@ -97,30 +97,6 @@
         "header": "",
         "writeup": "",
         "cta": "",
-        "cta_sentence": "",
-        "cta_2": ""
-      }
-    },
-    "2": {
-      "label": "Template 2",
-      "htmlFile": "/template/2.html",
-      "editableFields": [
-        "header",
-        "subject",
-        "writeup",
-        "cta",
-        "filename",
-        "tracking_link",
-        "unsubscribe_link"
-      ],
-      "defaults": {
-        "header": "Unlock 25% Savings with AARP Membership",
-        "subject": "Start Your AARP Membership Today and Save 25% on the First Year",
-        "writeup": "This November, enjoy 25% savings when you join AARP. Access member-only resources, tools and exclusive savings. Start building a future filled with benefits designed to make life easier, healthier and more enjoyable.",
-        "cta": "JOIN NOW",
-        "filename": "aarp707cys",
-        "tracking_link": "",
-        "unsubscribe_link": "",
         "cta_sentence": "",
         "cta_2": ""
       }
