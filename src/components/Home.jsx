@@ -3,6 +3,7 @@ import { saveAs } from "file-saver";
 import Cookies from "js-cookie";
 import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, Upload, Eraser } from "lucide-react";
 import { siGithub } from "simple-icons";
+import { toast } from "sonner";
 import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
 import {
@@ -14,17 +15,9 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import {
   defaultParameters,
   fieldConfigs,
   getEditableFields,
-  getTemplateDefaults,
   templates,
 } from "../utils/templateConfig";
 
@@ -45,6 +38,7 @@ function extractTemplatePlaceholders(htmlContent) {
 const initialTemplateId = Object.keys(templates).find(
   (templateId) => templateId !== "custom"
 ) || "custom";
+const defaultTemplateFilename = "DEFAULT_TEMPLATE.html";
 
 /**
  * Convert a snake_case or camelCase field name into a human-readable label.
@@ -139,18 +133,6 @@ function Home() {
     }
   }, [generatePreviewHtml]);
 
-  const handleTemplateChange = async (selected) => {
-    setSelectedTemplate(selected);
-    const templateDefaults = getTemplateDefaults(selected);
-    setParameters(templateDefaults);
-
-    Object.entries(templateDefaults).forEach(([key, value]) => {
-      Cookies.set(key, value, { expires: 7 });
-    });
-
-    await loadTemplate(selected);
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setParameters((prevParams) => {
@@ -162,7 +144,16 @@ function Home() {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      toast.error("No file selected.");
+      return;
+    }
+
+    if (!file.name.toLowerCase().endsWith(".html")) {
+      toast.error("Only HTML template files are supported.");
+      e.target.value = "";
+      return;
+    }
 
     setSelectedTemplate("custom");
     setTemplateFile(file);
@@ -185,6 +176,12 @@ function Home() {
         });
         return updated;
       });
+
+      toast.success(`Uploaded ${file.name} successfully.`);
+      toast.info(`Detected ${detectedFields.length} dynamic field(s).`);
+    };
+    reader.onerror = () => {
+      toast.error(`Failed to read ${file.name}.`);
     };
     reader.readAsText(file);
   };
@@ -193,16 +190,21 @@ function Home() {
     e.preventDefault();
 
     if (!templateFile && selectedTemplate === "custom") {
-      alert("Please select a template or upload a custom template file!");
+      toast.error("Please upload a custom template file before saving.");
       return;
     }
 
     const previewHtml = generatePreviewHtml();
     const blob = new Blob([previewHtml], { type: "text/html;charset=utf-8" });
+    const outputFilename = parameters.filename
+      ? `${parameters.filename}.html`
+      : "output.html";
+
     saveAs(
       blob,
-      parameters.filename ? `${parameters.filename}.html` : "output.html"
+      outputFilename
     );
+    toast.success(`Saved ${outputFilename}.`);
   };
 
   const handleClearAll = () => {
@@ -216,6 +218,8 @@ function Home() {
     Object.keys(clearedParams).forEach((key) => {
       Cookies.remove(key);
     });
+
+    toast.success("Cleared all field values.");
   };
 
   const editableFields = getEditableFields(selectedTemplate);
@@ -273,6 +277,12 @@ function Home() {
   };
 
   const hasPreview = !!templateContent;
+  const templateDisplayName =
+    selectedTemplate !== "custom"
+      ? defaultTemplateFilename
+      : templateFile
+        ? templateFile.name
+        : "Custom File...";
 
   return (
     <div className="h-screen overflow-hidden bg-background text-foreground font-sans flex flex-col transition-colors duration-300">
@@ -280,22 +290,6 @@ function Home() {
       <header className="flex h-14 items-center justify-between px-4 border-b border-border bg-background">
         <div className="font-semibold text-[15px] text-foreground">Scaffl</div>
         <div className="flex items-center gap-2">
-          <Select
-            value={selectedTemplate === "custom" ? undefined : selectedTemplate}
-            onValueChange={handleTemplateChange}
-            disabled={isLoading}>
-            <SelectTrigger className="min-w-[150px] bg-muted text-[13px] hover:bg-accent">
-              <SelectValue placeholder="Load a preset..." />
-            </SelectTrigger>
-            <SelectContent align="start">
-              {Object.entries(templates).map(([templateId, template]) => (
-                <SelectItem key={templateId} value={templateId}>
-                  {template.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <div className="h-4 w-px bg-border mx-1"></div>
           <Button
             type="button"
             variant="outline"
@@ -312,13 +306,8 @@ function Home() {
             className="text-[13px]">
             View code
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="text-[13px]">
-            Share
-          </Button>
-          <div className="h-4 w-px bg-border mx-1"></div><Button variant="ghost" size="icon" asChild>
+          <div className="h-4 w-px bg-border mx-1"></div>
+          <Button variant="ghost" size="icon" asChild>
             <a
               href="https://github.com/likweitan/scaffl"
               target="_blank"
@@ -369,17 +358,12 @@ function Home() {
             {/* RIGHT SIDE — Sidebar Settings */}
             <div className="w-1/2 bg-background flex flex-col overflow-y-auto p-6 custom-scrollbar">
               <div className="mb-6 space-y-1.5 group relative">
-                <div className="text-[13px] text-foreground">Active Template</div>
+                <div className="text-[13px] text-foreground">Template</div>
                 <button className="w-full bg-card border border-border rounded px-3 py-1.5 text-[13px] text-left text-foreground flex justify-between items-center hover:bg-muted transition-colors relative">
-                   <span className="truncate pr-4">{templateFile ? templateFile.name : "Custom File..."}</span>
+                   <span className="truncate pr-4">{templateDisplayName}</span>
                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0"><polyline points="6 9 12 15 18 9"></polyline></svg>
                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept=".html" onChange={handleFileChange} />
                 </button>
-                {customFields.length > 0 && selectedTemplate === "custom" && (
-                    <div className="text-[11px] text-green-500 mt-1">
-                      Detected {customFields.length} dynamic field(s).
-                    </div>
-                )}
                 {isLoading && <div className="text-[11px] text-muted-foreground mt-1">Loading...</div>}
               </div>
 
