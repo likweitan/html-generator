@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { saveAs } from "file-saver";
 import Cookies from "js-cookie";
 import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, X, Upload, GitBranch, Eraser } from "lucide-react";
+import { ModeToggle } from "./mode-toggle";
 import {
   defaultParameters,
   fieldConfigs,
@@ -234,13 +235,13 @@ function Home() {
   const hasPreview = !!templateContent;
 
   return (
-    <div className="h-screen overflow-hidden bg-[#0E0E0E] text-[#D1D5DB] font-sans flex flex-col">
+    <div className="h-screen overflow-hidden bg-background text-foreground font-sans flex flex-col transition-colors duration-300">
       {/* HEADER */}
-      <header className="flex h-14 items-center justify-between px-4 border-b border-white/10">
-        <div className="font-semibold text-[15px] text-white">Scaffl</div>
+      <header className="flex h-14 items-center justify-between px-4 border-b border-border bg-background">
+        <div className="font-semibold text-[15px] text-foreground">Scaffl</div>
         <div className="flex items-center gap-2">
           <select
-            className="bg-[#2A2A2A] text-white text-[13px] rounded px-3 py-1.5 border border-white/5 outline-none hover:bg-[#333333] transition-colors min-w-[150px]"
+            className="bg-muted text-foreground text-[13px] rounded px-3 py-1.5 border border-border outline-none hover:bg-accent transition-colors min-w-[150px]"
             value={selectedTemplate}
             onChange={handleTemplateChange}
             disabled={isLoading}
@@ -252,35 +253,36 @@ function Home() {
               </option>
             ))}
           </select>
-          <div className="h-4 w-px bg-white/10 mx-1"></div>
-          <button onClick={handleFormSubmit} disabled={isLoading || !hasPreview} className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white disabled:opacity-50">Save</button>
-          <button onClick={() => setShowCodeModal(true)} disabled={!hasPreview} className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white disabled:opacity-50">View code</button>
-          <button className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white">Share</button>
-          <a href="https://github.com/likweitan/scaffl" target="_blank" rel="noopener noreferrer" className="bg-[#2A2A2A] hover:bg-[#333333] text-[13px] px-3 py-1.5 rounded border border-white/5 transition-colors text-white flex items-center gap-1.5">
+          <div className="h-4 w-px bg-border mx-1"></div>
+          <button onClick={handleFormSubmit} disabled={isLoading || !hasPreview} className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground disabled:opacity-50">Save</button>
+          <button onClick={() => setShowCodeModal(true)} disabled={!hasPreview} className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground disabled:opacity-50">View code</button>
+          <button className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground">Share</button>
+          <a href="https://github.com/likweitan/scaffl" target="_blank" rel="noopener noreferrer" className="bg-muted hover:bg-accent text-[13px] px-3 py-1.5 rounded border border-border transition-colors text-foreground flex items-center gap-1.5">
             <GitBranch className="w-3.5 h-3.5" />
             GitHub
           </a>
+          <ModeToggle />
         </div>
       </header>
 
-      <main className="flex flex-1 overflow-hidden bg-[#0E0E0E]">
+      <main className="flex flex-1 overflow-hidden bg-background">
         {!hasPreview ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             <div className="relative group cursor-pointer flex flex-col items-center justify-center py-20 px-4 w-full max-w-lg">
               <input type="file" className="absolute inset-0 z-30 opacity-0 cursor-pointer" accept=".html" onChange={handleFileChange} />
-              <div className="w-[88px] h-[88px] bg-[#1A1A1A] rounded-[24px] flex items-center justify-center mb-8 shadow-xl transition-colors group-hover:bg-[#252525] border border-white/5">
-                <Upload className="w-10 h-10 text-gray-400" strokeWidth={2.5} />
+              <div className="w-[88px] h-[88px] bg-card rounded-[24px] flex items-center justify-center mb-8 shadow-xl transition-colors group-hover:bg-muted border border-border">
+                <Upload className="w-10 h-10 text-muted-foreground" strokeWidth={2.5} />
               </div>
-              <h3 className="text-white font-bold text-[22px] tracking-tight mb-2">Upload your files</h3>
-              <p className="text-gray-400 text-[16px] mb-2 pointer-events-none">Drag and drop your files here or click to browse</p>
-              <p className="text-gray-500 text-[13px] pointer-events-none">Up to 10 files, 50MB each (Only HTML templates)</p>
+              <h3 className="text-foreground font-bold text-[22px] tracking-tight mb-2">Upload your files</h3>
+              <p className="text-muted-foreground text-[16px] mb-2 pointer-events-none">Drag and drop your files here or click to browse</p>
+              <p className="text-muted-foreground/60 text-[13px] pointer-events-none">Up to 10 files, 50MB each (Only HTML templates)</p>
             </div>
           </div>
         ) : (
           <>
             {/* LEFT SIDE — Main Canvas */}
-            <div className="w-1/2 flex flex-col relative px-4 py-4 border-r border-white/10 bg-[#0a0a0a]">
-              <div className="w-full max-w-4xl mx-auto flex-1 rounded-md border border-white/10 overflow-hidden relative bg-transparent flex flex-col shadow-lg">
+            <div className="w-1/2 flex flex-col relative px-4 py-4 border-r border-border bg-background">
+              <div className="w-full max-w-4xl mx-auto flex-1 rounded-md border border-border overflow-hidden relative bg-transparent flex flex-col shadow-lg">
                 <div className="w-full h-full bg-white relative">
                    <iframe
                     ref={iframeRef}
@@ -293,29 +295,29 @@ function Home() {
             </div>
 
             {/* RIGHT SIDE — Sidebar Settings */}
-            <div className="w-1/2 bg-[#0E0E0E] flex flex-col overflow-y-auto p-6 custom-scrollbar">
+            <div className="w-1/2 bg-background flex flex-col overflow-y-auto p-6 custom-scrollbar">
               <div className="mb-6 space-y-1.5 group relative">
-                <div className="text-[13px] text-gray-300">Active Template</div>
-                <button className="w-full bg-[#1A1A1A] border border-white/10 rounded px-3 py-1.5 text-[13px] text-left text-white flex justify-between items-center hover:bg-[#2A2A2A] transition-colors relative">
+                <div className="text-[13px] text-foreground">Active Template</div>
+                <button className="w-full bg-card border border-border rounded px-3 py-1.5 text-[13px] text-left text-foreground flex justify-between items-center hover:bg-muted transition-colors relative">
                    <span className="truncate pr-4">{templateFile ? templateFile.name : "Custom File..."}</span>
                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0"><polyline points="6 9 12 15 18 9"></polyline></svg>
                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept=".html" onChange={handleFileChange} />
                 </button>
                 {customFields.length > 0 && selectedTemplate === "custom" && (
-                    <div className="text-[11px] text-green-400 mt-1">
+                    <div className="text-[11px] text-green-500 mt-1">
                       Detected {customFields.length} dynamic field(s).
                     </div>
                 )}
-                {isLoading && <div className="text-[11px] text-gray-400 mt-1">Loading...</div>}
+                {isLoading && <div className="text-[11px] text-muted-foreground mt-1">Loading...</div>}
               </div>
 
               <div className="flex items-center justify-between mb-4">
-                <span className="text-[11px] uppercase tracking-widest text-gray-500 font-semibold">Fields</span>
+                <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">Fields</span>
                 <button
                   type="button"
                   onClick={handleClearAll}
                   title="Clear all field values"
-                  className="flex items-center gap-1.5 text-[12px] text-gray-400 hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-red-400/10"
+                  className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-red-500 transition-colors px-2 py-1 rounded hover:bg-red-500/10"
                 >
                   <Eraser className="w-3.5 h-3.5" />
                   Clear
@@ -324,9 +326,9 @@ function Home() {
               <div className="space-y-6">
                 {visibleFields.map((field) => (
                   <div key={field.name} className="flex flex-col gap-1.5">
-                    <label className="text-[13px] text-gray-300 flex justify-between">
+                    <label className="text-[13px] text-foreground flex justify-between">
                       {field.label}
-                      {field.type === 'number' && <span className="text-gray-500">{parameters[field.name] || 0}</span>}
+                      {field.type === 'number' && <span className="text-muted-foreground">{parameters[field.name] || 0}</span>}
                     </label>
                     {field.type === "textarea" ? (
                       <textarea
@@ -334,7 +336,7 @@ function Home() {
                         name={field.name}
                         value={parameters[field.name] || ""}
                         onChange={handleInputChange}
-                        className="w-full bg-[#1A1A1A] border border-white/10 rounded px-2 py-1.5 text-[13px] focus:outline-none focus:border-white text-white resize-y"
+                        className="w-full bg-card border border-border rounded px-2 py-1.5 text-[13px] focus:outline-none focus:ring-1 focus:ring-ring text-foreground resize-y"
                         rows={field.rows || 3}
                       />
                     ) : field.type === "number" || field.type === "range" ? (
@@ -347,7 +349,7 @@ function Home() {
                           max="100"
                           value={parameters[field.name] || 0}
                           onChange={handleInputChange}
-                          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer" 
+                          className="w-full h-1 bg-muted rounded-lg appearance-none cursor-pointer" 
                         />
                       </div>
                     ) : (
@@ -356,7 +358,7 @@ function Home() {
                         name={field.name}
                         value={parameters[field.name] || ""}
                         onChange={handleInputChange}
-                        className="w-full bg-[#1A1A1A] border border-white/10 rounded px-2 py-1.5 text-[13px] focus:outline-none focus:border-white text-white"
+                        className="w-full bg-card border border-border rounded px-2 py-1.5 text-[13px] focus:outline-none focus:ring-1 focus:ring-ring text-foreground"
                       />
                     )}
                   </div>
@@ -369,24 +371,24 @@ function Home() {
 
       {showCodeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#1e1e1e] border border-white/10 rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
-            <div className="flex justify-between items-center p-4 border-b border-white/10 bg-[#1A1A1A] rounded-t-lg">
-              <h2 className="text-white font-medium text-[14px]">Generated Code</h2>
-              <button onClick={() => setShowCodeModal(false)} className="text-gray-400 hover:text-white transition-colors">
+          <div className="bg-card border border-border rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
+            <div className="flex justify-between items-center p-4 border-b border-border bg-muted rounded-t-lg">
+              <h2 className="text-foreground font-medium text-[14px]">Generated Code</h2>
+              <button onClick={() => setShowCodeModal(false)} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="p-4 flex-1 overflow-y-auto custom-scrollbar bg-[#0E0E0E]">
-              <pre className="text-[13px] text-gray-300 font-mono whitespace-pre-wrap break-all">
+            <div className="p-4 flex-1 overflow-y-auto custom-scrollbar bg-background">
+              <pre className="text-[13px] text-foreground font-mono whitespace-pre-wrap break-all">
                 {generatePreviewHtml()}
               </pre>
             </div>
-            <div className="p-3 border-t border-white/10 flex justify-end gap-2 bg-[#1A1A1A] rounded-b-lg">
+            <div className="p-3 border-t border-border flex justify-end gap-2 bg-muted rounded-b-lg">
               <button 
                 onClick={() => {
                   navigator.clipboard.writeText(generatePreviewHtml());
                 }} 
-                className="bg-[#2A2A2A] hover:bg-[#333333] text-white px-4 py-1.5 rounded text-[13px] border border-white/5 transition-colors"
+                className="bg-background hover:bg-accent text-foreground px-4 py-1.5 rounded text-[13px] border border-border transition-colors"
               >
                 Copy
               </button>
