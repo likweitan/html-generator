@@ -100,6 +100,23 @@
         "cta_sentence": "",
         "cta_2": ""
       }
+    },
+    "2": {
+      "label": "Marketing Template",
+      "htmlFile": "/template/2.html",
+      "editableFields": [
+        "header",
+        "subject",
+        "writeup",
+        "cta",
+        "filename",
+        "tracking_link",
+        "unsubscribe_link"
+      ],
+      "defaults": {
+        "cta_sentence": "",
+        "cta_2": ""
+      }
     }
   }
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { saveAs } from "file-saver";
 import Cookies from "js-cookie";
 import { Edit, Eye, Download, Sparkles, Layers, Box, Wand2, Upload, Eraser } from "lucide-react";
@@ -25,6 +26,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { GithubIcon } from "./ui/github";
+import { renderTemplate } from "../utils/renderTemplate";
 import {
   defaultParameters,
   fieldConfigs,
@@ -63,13 +65,19 @@ function fieldNameToLabel(name) {
 }
 
 function Home() {
+  const [searchParams] = useSearchParams();
+  const requestedTemplateId = searchParams.get("template");
+  const initialSelectedTemplate =
+    requestedTemplateId && templates[requestedTemplateId]?.htmlFile
+      ? requestedTemplateId
+      : initialTemplateId;
   const [parameters, setParameters] = useState(defaultParameters);
   const [templateFile, setTemplateFile] = useState(null);
   const [templateContent, setTemplateContent] = useState("");
-  const [selectedTemplate, setSelectedTemplate] = useState(initialTemplateId);
+  const [selectedTemplate, setSelectedTemplate] = useState(initialSelectedTemplate);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialTemplateLoading, setIsInitialTemplateLoading] = useState(
-    initialTemplateId !== "custom"
+    initialSelectedTemplate !== "custom"
   );
   const [customFields, setCustomFields] = useState([]);
   const [showCodeModal, setShowCodeModal] = useState(false);
@@ -111,25 +119,26 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    if (initialTemplateId !== "custom") {
-      loadTemplate(initialTemplateId).finally(() => {
+    if (selectedTemplate !== "custom") {
+      loadTemplate(selectedTemplate).finally(() => {
         setIsInitialTemplateLoading(false);
       });
       return;
     }
 
     setIsInitialTemplateLoading(false);
-  }, [loadTemplate]);
+  }, [loadTemplate, selectedTemplate]);
 
   // Generate the preview HTML by replacing placeholders with current parameter values
   const generatePreviewHtml = useCallback(() => {
     if (!templateContent) return "";
-    let outputHtml = templateContent;
-    for (const key in parameters) {
-      const placeholder = `{{ ${key} }}`;
-      outputHtml = outputHtml.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "g"), parameters[key] || "");
+    try {
+      return renderTemplate(templateContent, parameters);
+    } catch (error) {
+      console.error("Error rendering template:", error);
+      toast.error("Failed to render template.");
+      return "";
     }
-    return outputHtml;
   }, [templateContent, parameters]);
 
   // Update iframe preview whenever parameters or template content change
